@@ -4,9 +4,12 @@ const PORT = process.env.PORT || 3000
 const Koa = require('koa');
 const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
+const json = require('koa-json');
 
 const app = new Koa();
 const router = new Router();
+
+const UserController = require('./controllers/UserController');
 
 
 //Routing
@@ -19,17 +22,17 @@ router.get('/test', async ctx => {
     ctx.body = 'Test Working!'
 })
 
-router.post('/user', async (ctx, next) => {
-    ctx.body = ctx.req.body;
-    ctx.body = ctx.res.body;
-    ctx.response.message = 'hello there!'
-})
+router.post('/users', UserController.store);
 
-const server = app.listen(PORT);
+router.get('/users/currentuser', UserController.currentUser);
+
+const server = app.listen(PORT)
+
 
 app
     .use(router.routes())
     .use(router.allowedMethods())
-    .use(bodyParser());
+    .use(bodyParser())
+    .use(json())
 
 module.exports = server;
