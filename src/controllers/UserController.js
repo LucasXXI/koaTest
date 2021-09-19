@@ -1,78 +1,133 @@
-let users = [{
-        name: "Lucas",
-        age: "19",
-        email: "lucas@gmail.com"
-    }]
-;
+let users = [
+  {
+    name: "Lucas",
+    age: "19",
+    email: "lucas@gmail.com",
+  },
+  {
+    name: "Lucas 2",
+    age: "19",
+    email: "lucas@gmail.com",
+  },
+  {
+    name: "Lucas 3",
+    age: "19",
+    email: "lucas@gmail.com",
+  },
+  {
+    name: "Lucas 4",
+    age: "19",
+    email: "lucas@gmail.com",
+  },
+];
 
-export const getUsers = async (ctx) => {
-    ctx.body = users;
-    ctx.status = 200;
-}
+//PARA AMANHA!!
+//add logica p/ page ou quantity IGUAL a 0
+//melhor logica de paginacao no geral
+//Verificar Unit Tests
 
-export const getUser = async (ctx) => {
-    const { id } = ctx.params;
+//throw new error
+export const getUsers = async ({ request, response }) => {
+  const { page, quantity } = request.query;
 
-    try {
-        if (users && id < users.length){
-            ctx.body = users[id]
+  try {
+    if (page || quantity) {
+      if (page && quantity) {
+        if (page > 0 && quantity > 0 && quantity <= users.length) {
+          const usersArray = users.reduce((result, item, index) => {
+            const quantityIndex = Math.floor(index / quantity);
+            console.log(quantityIndex);
+
+            if (!result[quantityIndex]) {
+              result[quantityIndex] = []; // start a new page
+            }
+            result[quantityIndex].push(item);
+
+            return result;
+          }, []);
+
+          response.status = 200;
+          response.body = { users: usersArray[page - 1] };
+        } else {
+          response.status = 200;
+          response.body = { users };
         }
-        else {
-            ctx.response.status = 400;
-            ctx.body = { error: "Non existent Index" }
-        }
-    } catch (error) {
-        ctx.response.status = 400;
-        ctx.body = { error: "Couldn't find user in array." }
+      } else {
+        response.status = 400;
+        response.body = { error: "Missing one of params!" };
+      }
+    } else {
+      response.status = 200;
+      response.body = { users };
     }
-}
-export const createUser =  async (ctx) => {
-    users.push(ctx.request.body); 
-    ctx.body = users;
+  } catch (error) {
+    response.status = 400;
+    response.body = { error: "Couldn't find user in array." };
+  }
 };
 
-export const deleteUser = async (ctx) => {
-    const { id } = ctx.params;
-    try {
-        if (users && id < users.length){
-            users.splice(id, 1);
-            ctx.body = users
-        }
-        else {
-            ctx.response.status = 400;
-            ctx.body = { error: "Non existent Index" }
-        }
-    } catch (error) {
-        ctx.response.status = 400;
-        ctx.body = { error: "Couldn't find user in array." }
+export const getUser = async ({ request, response }) => {
+  const { id } = request.params;
+
+  try {
+    if (users && id < users.length) {
+      response.body = { user: users[id] };
+    } else {
+      throw new Error("Non existent index.")
+      // response.status = 400;
+      // response.body = { error: "Non existent Index" };
     }
-    
+  } catch (error) {
+    response.status = 400;
+    response.body = { error: error.message };
+  }
 };
 
-export const updateUser = async (ctx) => {
-    const { id } = ctx.params;
-    const { name, age, email } = ctx.request.body
+export const createUser = async ({ request, response }) => {
+  users.push(request.body);
+  response.body = { users };
+};
 
-    try {
-        if (users && id < users.length){
-            if (name){
-                users[id].name = name
-            }
-            if (age){
-                users[id].age = age
-            }
-            if (email){
-                users[id].email = email
-            }
+export const deleteUser = async ({ request, response }) => {
+  const { id } = request.params;
 
-            ctx.body = users[id]
-        }
-        else {
-            ctx.response.status = 400;
-            ctx.body = { error: "Non existent Index" }
-        }
-    } catch (error) {
-        ctx.response.status = 400;
-        ctx.body = { error: "Couldn't find user in array." }
+  try {
+    if (users && id < users.length) {
+      users.splice(id, 1);
+      response.body = { users };
+    } else {
+      response.status = 400;
+      response.body = { error: "Non existent Index" };
     }
-}
+  } catch (error) {
+    response.status = 400;
+    response.body = { error: "Couldn't find user in array." };
+  }
+};
+
+export const updateUser = async ({ request, response }) => {
+  const { id } = request.params;
+  const { name, age, email } = request.body;
+
+  try {
+    if (users && id < users.length) {
+      if (name) {
+        users[id].name = name;
+      }
+      if (age) {
+        users[id].age = age;
+      }
+      if (email) {
+        users[id].email = email;
+      }
+
+      response.body = { user: users[id] };
+    } else {
+      response.status = 400;
+      response.body = { error: "Non existent Index" };
+    }
+  } catch (error) {
+    response.status = 400;
+    response.body = { error: "Couldn't find user in array." };
+  }
+};
