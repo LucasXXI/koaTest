@@ -1,56 +1,78 @@
-const User = require("../models/User");
+let users = [{
+        name: "Lucas",
+        age: "19",
+        email: "lucas@gmail.com"
+    }]
+;
 
-module.exports = {
-    async index (req, res){
-        const users = await User.findAll();
+export const getUsers = async (ctx) => {
+    ctx.body = users;
+    ctx.status = 200;
+}
 
-        return res.json(users);
-    },
-    async currentUser (req, res){
-        const id = req.id;
+export const getUser = async (ctx) => {
+    const { id } = ctx.params;
 
-        const user = await User.findOne({ where: { id }});
+    try {
+        if (users && id < users.length){
+            ctx.body = users[id]
+        }
+        else {
+            ctx.response.status = 400;
+            ctx.body = { error: "Non existent Index" }
+        }
+    } catch (error) {
+        ctx.response.status = 400;
+        ctx.body = { error: "Couldn't find user in array." }
+    }
+}
+export const createUser =  async (ctx) => {
+    users.push(ctx.request.body); 
+    ctx.body = users;
+};
+
+export const deleteUser = async (ctx) => {
+    const { id } = ctx.params;
+    try {
+        if (users && id < users.length){
+            users.splice(id, 1);
+            ctx.body = users
+        }
+        else {
+            ctx.response.status = 400;
+            ctx.body = { error: "Non existent Index" }
+        }
+    } catch (error) {
+        ctx.response.status = 400;
+        ctx.body = { error: "Couldn't find user in array." }
+    }
     
-        return res.json(user);
-    },
-    async store (req, res) {
-        const { name, age, email } = req.body;
+};
 
-        const defaultRole = await Role.findOne({
-            where: { tag: 'user' }
-        });
+export const updateUser = async (ctx) => {
+    const { id } = ctx.params;
+    const { name, age, email } = ctx.request.body
 
-        const user = await User.create({ name, age, email: defaultRole.id });
+    try {
+        if (users && id < users.length){
+            if (name){
+                users[id].name = name
+            }
+            if (age){
+                users[id].age = age
+            }
+            if (email){
+                users[id].email = email
+            }
 
-        return res.json(user);
-    },
-    async update (req, res){
-        const { id } = req.params;
-        const { name, age, email } = req.body;
-
-        const user = await User.findOne({ where:{ id } });
-
-        if(!user){
-            return res.status(401).send('User not found');
+            ctx.body = users[id]
         }
-
-        user.update({ name, age, email, password, image, role });
-
-        user.save();
-
-        return res.json(user);
-    },
-    async delete(req, res){
-        const { id } = req.params;
-
-        const user = User.findOne({ where:{ id } });
-
-        if(!user){
-            return res.status(401).send('User not found');
+        else {
+            ctx.response.status = 400;
+            ctx.body = { error: "Non existent Index" }
         }
-
-        user.destroy();
-
-        return res.send(`User ${id} deleted.`);
+    } catch (error) {
+        ctx.response.status = 400;
+        ctx.body = { error: "Couldn't find user in array." }
     }
 }
