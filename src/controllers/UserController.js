@@ -5,28 +5,27 @@ let users = [
     email: "lucas@gmail.com",
   },
   {
-    name: "Lucas 2",
+    name: "Rodrigo",
     age: "19",
-    email: "lucas@gmail.com",
+    email: "rodrigo@gmail.com",
   },
   {
-    name: "Lucas 3",
+    name: "Pedro",
     age: "19",
-    email: "lucas@gmail.com",
+    email: "pedro@gmail.com",
   },
   {
-    name: "Lucas 4",
+    name: "Gabriel",
     age: "19",
-    email: "lucas@gmail.com",
+    email: "gabriel@gmail.com",
   },
+  {
+    name: "Matheus",
+    age: "20",
+    email: "matheus@gmail.com"
+  }
 ];
 
-//PARA AMANHA!!
-//add logica p/ page ou quantity IGUAL a 0
-//melhor logica de paginacao no geral
-//Verificar Unit Tests
-
-//throw new error
 export const getUsers = async ({ request, response }) => {
   const { page, quantity } = request.query;
 
@@ -73,7 +72,7 @@ export const getUser = async ({ request, response }) => {
     if (users && id < users.length) {
       response.body = { user: users[id] };
     } else {
-      throw new Error("Non existent index.")
+      throw new Error("Non existent index.");
       // response.status = 400;
       // response.body = { error: "Non existent Index" };
     }
@@ -107,18 +106,14 @@ export const deleteUser = async ({ request, response }) => {
 
 export const updateUser = async ({ request, response }) => {
   const { id } = request.params;
-  const { name, age, email } = request.body;
-
+  const { body } = request;
+  // const bitu = ['name', 'age', 'email']
   try {
     if (users && id < users.length) {
-      if (name) {
-        users[id].name = name;
-      }
-      if (age) {
-        users[id].age = age;
-      }
-      if (email) {
-        users[id].email = email;
+      for (let [key, value] of Object.entries(body)) {
+        if (Object.keys(users[id]).includes(key)) {
+          users[id][key] = value;
+        }
       }
 
       response.body = { user: users[id] };
@@ -131,3 +126,9 @@ export const updateUser = async ({ request, response }) => {
     response.body = { error: "Couldn't find user in array." };
   }
 };
+
+//PARA AMANHA!!
+//add logica p/ page ou quantity IGUAL a 0
+//melhor logica de paginacao no geral
+//consertar throw new error
+
