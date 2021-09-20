@@ -1,4 +1,3 @@
-import assert from "assert";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import chaiJson from "chai-json-schema";
@@ -23,16 +22,16 @@ describe("Application Tests", () => {
         done();
       });
   });
-  it('Should response an array with items', (done) =>{
+  it("Should response an array with items", (done) => {
     chai
-    .request(server)
-    .get("/users")
-    .end((err, res) =>{
+      .request(server)
+      .get("/users")
+      .end((err, res) => {
         expect(err).to.be.null;
         expect(res.body.users).to.have.length.above(0);
-        expect(res).to.have.status(200)
+        expect(res).to.have.status(200);
         done();
-    })
+      });
   });
   it("Should Create a new user", (done) => {
     chai
@@ -104,9 +103,22 @@ describe("Application Tests", () => {
   });
 });
 
+describe("Pagination Test", () => {
+  it("Pagination with one page and quantity of 3 items", (done) => {
+    chai
+      .request(server)
+      .get("/users/?page=1&quantity=3")
+      .end((err, res) => {
+        expect(err).to.be.null;
+        expect(res.body.users).to.have.length.above(0);
+        done();
+      });
+  });
+});
+
+
 //verificar a delecao de um user que nao existe
 //verificar um update com dados diferentes dos ja existentes
 //validar entrada da criacao de user
 //pasar tipo diferente do que esta no schema
-//json schema pattern para validar 
-
+//json schema pattern para validar
