@@ -53,8 +53,7 @@ export const getUsers = async ({ request, response }) => {
         throw new Error("Missing one of the params!");
       }
     } else {
-      response.status = 200;
-      response.body = { users };
+      throw new Error("Invalid Params!")
     }
   } catch (error) {
     response.status = 400;
@@ -66,7 +65,7 @@ export const getUser = async ({ request, response }) => {
   const { id } = request.params;
 
   try {
-    if (users && id < users.length) {
+    if (id < users.length) {
       response.body = { user: users[id] };
     } else {
       throw new Error("Non existent user in index.");
@@ -95,7 +94,7 @@ export const deleteUser = async ({ request, response }) => {
   const { id } = request.params;
 
   try {
-    if (users && id < users.length) {
+    if (id < users.length) {
       users.splice(id, 1);
       response.body = { users };
     } else {
@@ -112,7 +111,7 @@ export const updateUser = async ({ request, response }) => {
   const { body } = request;
 
   try {
-    if (users && id < users.length) {
+    if (id < users.length) {
       for (let [key, value] of Object.entries(body)) {
         if (Object.keys(users[id]).includes(key)) {
           users[id][key] = value;
